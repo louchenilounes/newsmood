@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# NewsMood : bases de donnees locales
+data/*.db
+!data/sample.db
