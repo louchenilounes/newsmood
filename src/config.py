@@ -27,9 +27,25 @@ FEED_TEMPLATES = {
 # On se presente donc comme un navigateur classique.
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"  
 )
 
+
+# --- Qualite du texte ----------------------------------------------------
+# Sources dont on telecharge le texte complet (les autres : titre seulement).
+# Mesure faite a l'etape 4 : Nasdaq renvoie 403, Seeking Alpha une page anti-robot.
+FULL_TEXT_SOURCES = {"Yahoo Finance"}
+
+# Un texte plus court est considere comme incomplet (paywall, page d'erreur...).
+MIN_TEXT_LENGTH = 500
+
+# Phrases typiques des pages anti-robot ou d'erreur (en minuscules).
+BLOCKED_PHRASES = [
+    "enable javascript",
+    "access denied",
+    "are you a robot",
+    "subscribe to continue",
+]
 
 def get_feeds(ticker):
     """

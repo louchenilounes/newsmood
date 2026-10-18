@@ -77,6 +77,12 @@ def insert_article(conn, article):
         # Erreur levee par la contrainte UNIQUE : l'url est deja dans la base.
         return False
 
+def article_exists(conn, ticker, url):
+    """Renvoie True si l'article est deja en base pour cette entreprise."""
+    row = conn.execute(
+        "SELECT 1 FROM articles WHERE ticker = ? AND url = ?", (ticker, url)
+    ).fetchone()
+    return row is not None
 
 def count_articles(conn):
     """Renvoie le nombre d'articles dans la base."""
