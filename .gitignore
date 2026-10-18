@@ -222,3 +222,4 @@ __marimo__/
 # NewsMood : bases de donnees locales
 data/*.db
 !data/sample.db
+logs/
