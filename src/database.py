@@ -84,6 +84,30 @@ def article_exists(conn, ticker, url):
     ).fetchone()
     return row is not None
 
+def save_prices(conn, rows):
+    """
+    Enregistre une liste de prix.
+    `rows` = liste de dictionnaires avec les cles : ticker, date, close, daily_return.
+
+    INSERT OR REPLACE : si le prix de ce jour existe deja (meme ticker et meme date),
+    il est remplace. On peut donc relancer le script sans creer de doublons.
+    Renvoie le nombre de lignes enregistrees.
+    """
+    conn.executemany(
+        """
+        INSERT OR REPLACE INTO prices (ticker, date, close, daily_return)
+        VALUES (:ticker, :date, :close, :daily_return)
+        """,
+        rows,
+    )
+    conn.commit()
+    return len(rows)
+
+
+def count_prices(conn):
+    """Renvoie le nombre de lignes dans la table prices."""
+    return conn.execute("SELECT COUNT(*) FROM prices").fetchone()[0]
+
 def count_articles(conn):
     """Renvoie le nombre d'articles dans la base."""
     return conn.execute("SELECT COUNT(*) FROM articles").fetchone()[0]
