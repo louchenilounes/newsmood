@@ -34,9 +34,10 @@ def create_tables(conn):
             source       TEXT,                  -- nom du journal
             title        TEXT NOT NULL,         -- titre de l'article
             text         TEXT,                  -- texte complet
-            url          TEXT NOT NULL UNIQUE,  -- UNIQUE = interdit les doublons
+            url          TEXT NOT NULL,         -- adresse de l'article
             published_at TEXT,                  -- date de publication (format ISO)
-            collected_at TEXT NOT NULL          -- date a laquelle on l'a collecte
+            collected_at TEXT NOT NULL,         -- date a laquelle on l'a collecte
+            UNIQUE (ticker, url)                -- un article par entreprise, sans doublon   
         );
 
         -- Une ligne = le prix d'une action pour un jour
@@ -58,7 +59,7 @@ def insert_article(conn, article):
     ticker, source, title, text, url, published_at, collected_at.
 
     Renvoie True si l'article a ete ajoute,
-    False s'il existait deja (meme url).
+    False s'il existait deja (meme entreprise et meme url).
     """
     try:
         # :ticker, :source... sont remplaces par les valeurs du dictionnaire.
@@ -111,7 +112,10 @@ if __name__ == "__main__":
 
     print("1er ajout :", insert_article(conn, test_article))             # attendu : True
     print("2e ajout (doublon) :", insert_article(conn, test_article))    # attendu : False
-    print("Nombre d'articles :", count_articles(conn))                   # attendu : 1
+    # Le meme article, mais pour une autre entreprise : il doit etre accepte
+    article_nvda = dict(test_article, ticker="NVDA")  # copie avec ticker = NVDA
+    print("Meme article pour NVDA :", insert_article(conn, article_nvda))  # attendu : True
+    print("Nombre d'articles :", count_articles(conn))                   # attendu : 2
 
     # On supprime l'article de test pour garder une base propre
     conn.execute("DELETE FROM articles WHERE url = ?", (test_article["url"],))
