@@ -48,6 +48,16 @@ def create_tables(conn):
             daily_return REAL,                  -- rendement du jour (en %)
             PRIMARY KEY (ticker, date)          -- un seul prix par entreprise et par jour
         );
+        
+        -- Une ligne = le sentiment d'un article, pour un modele et une partie (titre ou texte)
+        CREATE TABLE IF NOT EXISTS sentiments (
+            article_id INTEGER NOT NULL REFERENCES articles(id),  -- lien vers la table articles
+            model      TEXT NOT NULL,                             -- 'textblob' ou 'finbert'
+            field      TEXT NOT NULL,                             -- 'title' ou 'text'
+            label      TEXT NOT NULL,                             -- positive / negative / neutral
+            score      REAL NOT NULL,                             -- entre -1 et 1
+            PRIMARY KEY (article_id, model, field)                -- un seul score par combinaison
+        );
     """)
     conn.commit()
 
@@ -107,6 +117,21 @@ def save_prices(conn, rows):
 def count_prices(conn):
     """Renvoie le nombre de lignes dans la table prices."""
     return conn.execute("SELECT COUNT(*) FROM prices").fetchone()[0]
+
+def save_sentiments(conn, rows):
+    """
+    Enregistre des scores de sentiment.
+    `rows` = liste de dictionnaires avec : article_id, model, field, label, score.
+    """
+    conn.executemany(
+        """
+        INSERT OR REPLACE INTO sentiments (article_id, model, field, label, score)
+        VALUES (:article_id, :model, :field, :label, :score)
+        """,
+        rows,
+    )
+    conn.commit()
+    return len(rows)
 
 def count_articles(conn):
     """Renvoie le nombre d'articles dans la base."""
