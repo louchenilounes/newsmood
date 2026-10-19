@@ -16,12 +16,26 @@ from pathlib import Path
 # Comme ca, le chemin est bon sur n'importe quel PC.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "data" / "newsmood.db"
-
+SAMPLE_DB_PATH = PROJECT_ROOT / "data" / "sample.db"   # copie versionnee, pour la demo en ligne
 
 def get_connection(db_path=DB_PATH):
     """Ouvre une connexion a la base (le fichier est cree s'il n'existe pas)."""
     return sqlite3.connect(db_path)
 
+
+
+def using_sample_db():
+    """True si la vraie base n'existe pas (application en ligne, projet tout juste clone)."""
+    return not DB_PATH.exists()
+
+
+def get_read_connection():
+    """
+    Connexion pour LIRE les donnees (dashboard, analyses) :
+    la vraie base si elle existe, sinon la base d'exemple data/sample.db.
+    Les scripts qui ECRIVENT (collecte, prix, sentiment) gardent get_connection().
+    """
+    return get_connection(SAMPLE_DB_PATH if using_sample_db() else DB_PATH)
 
 def create_tables(conn):
     """Cree les tables si elles n'existent pas encore."""

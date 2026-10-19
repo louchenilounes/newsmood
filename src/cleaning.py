@@ -19,12 +19,12 @@ from urllib.parse import urlparse
 import pandas as pd
 
 from src.config import TICKERS
-from src.database import get_connection
+from src.database import get_read_connection
 
 
 def load_articles():
     """Charge la table articles et convertit les dates de publication."""
-    conn = get_connection()
+    conn = get_read_connection()
     df = pd.read_sql("SELECT * FROM articles", conn)
     conn.close()
     df["published_at"] = pd.to_datetime(df["published_at"], utc=True)

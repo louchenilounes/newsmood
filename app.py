@@ -12,7 +12,7 @@ from plotly.subplots import make_subplots
 from src.analysis import assign_trading_day, daily_sentiment
 from src.cleaning import load_clean_articles
 from src.config import TICKERS
-from src.database import get_connection
+from src.database import get_read_connection, using_sample_db
 from src.sentiment import finbert_predict, textblob_predict
 
 st.set_page_config(page_title="NewsMood", page_icon="📰", layout="wide")
@@ -32,7 +32,7 @@ EVALUATION = pd.DataFrame({
 @st.cache_data(ttl=600)
 def load_data():
     articles = load_clean_articles()   # memes regles de nettoyage que les notebooks
-    conn = get_connection()
+    conn = get_read_connection()
     sentiments = pd.read_sql("SELECT article_id, model, field, label, score FROM sentiments", conn)
     prices = pd.read_sql("SELECT * FROM prices", conn, parse_dates=["date"])
     conn.close()
@@ -44,6 +44,11 @@ articles, sentiments, prices = load_data()
 # --- En-tete -----------------------------------------------------------------
 st.title("📰 NewsMood")
 st.caption("Sentiment de la presse financière et cours de bourse — Apple, Tesla, Nvidia")
+if using_sample_db():
+    st.info(
+        "Version de démonstration : données d'exemple collectées jusqu'au "
+        f"{articles['published_at'].max():%d/%m/%Y}. La collecte continue en local."
+    )
 
 # --- Filtres (barre laterale) : utilises par l'onglet "Vue d'ensemble" -------
 st.sidebar.header("Filtres")
