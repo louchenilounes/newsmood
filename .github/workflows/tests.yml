@@ -1,0 +1,25 @@
+# Lance les tests automatiquement a chaque push sur GitHub.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest          # un serveur Linux fourni par GitHub
+    steps:
+      - name: Recuperer le code du projet
+        uses: actions/checkout@v4
+
+      - name: Installer Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Installer les bibliotheques utiles aux tests
+        run: pip install pytest pandas==3.0.6 numpy==2.5.4 feedparser==6.0.14 newspaper4k==0.9.6 lxml_html_clean==0.4.5
+
+      - name: Lancer les tests
+        run: python -m pytest -v
